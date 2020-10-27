@@ -12,14 +12,13 @@ services:
       - PGID=1000
       - TZ=America/Chicago
       - BASE_URL=/ombi
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    hostname: nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ../Config/nginx.conf:/etc/nginx/nginx.conf
-      - ../Data/nginx:/etc/ssl/private
+    labels:
+      # Traefik Labels
+      - "traefik.enable=true"
+      # HTTPS Labels
+      - "traefik.http.routers.ombi.rule=Host(`localhost`)" # Domain Name
+      - "traefik.http.routers.ombi.entrypoints=web-secure"
+      - "traefik.http.routers.ombi.middlewares=default-headers@file"
+      - "traefik.http.routers.ombi.service=ombi"
+      - "traefik.http.routers.ombi.tls=true"
+      - "traefik.http.services.ombi.loadbalancer.server.port=3579" # Proxied Port
